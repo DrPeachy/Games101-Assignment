@@ -96,7 +96,37 @@ inline bool Bounds3::IntersectP(const Ray& ray, const Vector3f& invDir,
     // invDir: ray direction(x,y,z), invDir=(1.0/x,1.0/y,1.0/z), use this because Multiply is faster that Division
     // dirIsNeg: ray direction(x,y,z), dirIsNeg=[int(x>0),int(y>0),int(z>0)], use this to simplify your logic
     // TODO test if ray bound intersects
-    
+
+
+    // Calculate intersection with X slab
+    float minAxisX = (dirIsNeg[0] ? pMax.x : pMin.x);
+    float maxAxisX = (dirIsNeg[0] ? pMin.x : pMax.x);
+    float tMin = (minAxisX - ray.origin.x) * invDir.x;
+    float tMax = (maxAxisX - ray.origin.x) * invDir.x;
+
+    // Calculate intersection with Y slab
+    float minAxisY = (dirIsNeg[1] ? pMax.y : pMin.y);
+    float maxAxisY = (dirIsNeg[1] ? pMin.y : pMax.y);
+    float tyMin = (minAxisY - ray.origin.y) * invDir.y;
+    float tyMax = (maxAxisY - ray.origin.y) * invDir.y;
+
+    // early exit if no intersection with x or y
+    tMin = std::max(tMin, tyMin);
+    tMax = std::min(tMax, tyMax);
+    if (tMin > tMax)
+        return false;
+
+    // Calculate intersection with Z slab
+    float minAxisZ = (dirIsNeg[2] ? pMax.z : pMin.z);
+    float maxAxisZ = (dirIsNeg[2] ? pMin.z : pMax.z);
+    float tzMin = (minAxisZ - ray.origin.z) * invDir.z;
+    float tzMax = (maxAxisZ - ray.origin.z) * invDir.z;
+
+    tMin = std::max(tMin, tzMin);
+    tMax = std::min(tMax, tzMax);
+
+    return tMin <= tMax;
+
 }
 
 inline Bounds3 Union(const Bounds3& b1, const Bounds3& b2)
