@@ -1,3 +1,0 @@
-/home/peachy/Documents/games101/Assignment7/build/CMakeFiles/rebuild_cache.dir
-/home/peachy/Documents/games101/Assignment7/build/CMakeFiles/RayTracing.dir
-/home/peachy/Documents/games101/Assignment7/build/CMakeFiles/edit_cache.dir
