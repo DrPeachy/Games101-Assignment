@@ -4,16 +4,19 @@
 
 #ifndef RAYTRACING_RAY_H
 #define RAYTRACING_RAY_H
+#include <array>
 #include "Vector.hpp"
 struct Ray{
     //Destination = origin + t*direction
     Vector3f origin;
     Vector3f direction, direction_inv;
+    std::array<int, 3> direction_sign;
     double t;//transportation time,
     double t_min, t_max;
 
     Ray(const Vector3f& ori, const Vector3f& dir, const double _t = 0.0): origin(ori), direction(dir),t(_t) {
         direction_inv = Vector3f(1./direction.x, 1./direction.y, 1./direction.z);
+        direction_sign = {int(direction.x < 0), int(direction.y < 0), int(direction.z < 0)};
         t_min = 0.0;
         t_max = std::numeric_limits<double>::max();
 

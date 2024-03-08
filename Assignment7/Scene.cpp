@@ -61,7 +61,57 @@ bool Scene::trace(
 Vector3f Scene::castRay(const Ray &ray, int depth) const
 {
     // TO DO Implement Path Tracing Algorithm here
+    if (depth > this->maxDepth) {
+        return Vector3f(0);
+    }
 
-    Vector3f result;
-    return result;
+    Intersection intersection = intersect(ray);
+    if (!intersection.happened) {
+        return Vector3f(0);
+    }
+
+    if (intersection.m->hasEmission()) {
+        return intersection.m->getEmission();
+    }
+
+    Vector3f wo = normalize(-ray.direction);
+    Vector3f p = intersection.coords;
+
+    // Direct Lighting
+    Vector3f L_dir = Vector3f(0);
+    Intersection inter_dir;
+    float pdf_light;
+    sampleLight(inter_dir, pdf_light);
+
+    Vector3f x = inter_dir.coords;
+    Vector3f ws = normalize(x - p);
+    Vector3f N = intersection.normal;
+    Vector3f NN = inter_dir.normal;
+    Vector3f emit = inter_dir.emit;
+
+    Ray p_to_x(p, ws);
+    Intersection shadow_inter = intersect(p_to_x);
+    bool isBlocked = shadow_inter.happened && shadow_inter.distance < inter_dir.distance;
+    if (!isBlocked){
+        float distance_square = (x - p).norm() * (x - p).norm();
+        L_dir = emit * 
+            intersection.m->eval(wo, ws, N) *
+            dotProduct(ws, N) *
+            dotProduct(-ws, NN) / distance_square / pdf_light;
+    }
+
+    // Indirect Lighting
+    Vector3f L_indir = Vector3f(0);
+    if(get_random_float() < RussianRoulette) {
+        Vector3f wi = intersection.m->sample(wo, N);
+        Ray p_to_wi(p, wi);
+        float pdf_hemi = intersection.m->pdf(wi, wo, N);
+        Vector3f fr = dotProduct(wi, N) > 0 ? intersection.m->eval(wo, wi, N) : 0;
+        Intersection inter_wi = intersect(p_to_wi);
+        if(inter_wi.happened && !inter_wi.m->hasEmission()) {
+            L_indir = fr * castRay(p_to_wi, depth + 1) * dotProduct(wi, N) / pdf_hemi / RussianRoulette;
+        }
+    }
+    return L_dir + L_indir;
+
 }
