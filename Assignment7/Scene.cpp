@@ -61,6 +61,7 @@ bool Scene::trace(
 Vector3f Scene::castRay(const Ray &ray, int depth) const
 {
     // TO DO Implement Path Tracing Algorithm here
+    Vector3f result = Vector3f(0);
     if (depth > this->maxDepth) {
         return Vector3f(0);
     }
@@ -91,13 +92,16 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
 
     Ray p_to_x(p, ws);
     Intersection shadow_inter = intersect(p_to_x);
-    bool isBlocked = shadow_inter.happened && shadow_inter.distance < inter_dir.distance;
+    bool isBlocked = shadow_inter.happened && shadow_inter.distance < (x - p).norm();
     if (!isBlocked){
         float distance_square = (x - p).norm() * (x - p).norm();
         L_dir = emit * 
             intersection.m->eval(wo, ws, N) *
             dotProduct(ws, N) *
-            dotProduct(-ws, NN) / distance_square / pdf_light;
+            dotProduct(-ws, NN) / (distance_square * pdf_light);
+        // print out every element in the equation
+        // std::cout << emit << " " << intersection.m->eval(wo, ws, N) << " " << dotProduct(ws, N) << " " << dotProduct(-ws, NN) << " " << distance_square << " " << pdf_light << std::endl;
+        // std::cout << "L_dir: " << L_dir << std::endl;
     }
 
     // Indirect Lighting
@@ -106,10 +110,13 @@ Vector3f Scene::castRay(const Ray &ray, int depth) const
         Vector3f wi = intersection.m->sample(wo, N);
         Ray p_to_wi(p, wi);
         float pdf_hemi = intersection.m->pdf(wi, wo, N);
-        Vector3f fr = dotProduct(wi, N) > 0 ? intersection.m->eval(wo, wi, N) : 0;
+        Vector3f fr = intersection.m->eval(wo, wi, N);
         Intersection inter_wi = intersect(p_to_wi);
         if(inter_wi.happened && !inter_wi.m->hasEmission()) {
-            L_indir = fr * castRay(p_to_wi, depth + 1) * dotProduct(wi, N) / pdf_hemi / RussianRoulette;
+            L_indir = fr * castRay(p_to_wi, depth + 1) * dotProduct(wi, N) / (pdf_hemi * RussianRoulette);
+            // print out every element in the equation
+            // std::cout << fr << " " << castRay(p_to_wi, depth + 1) << " " << dotProduct(wi, N) << " " << pdf_hemi << " " << RussianRoulette << std::endl;
+            // std::cout << "L_indir: " << L_indir << std::endl;
         }
     }
     return L_dir + L_indir;

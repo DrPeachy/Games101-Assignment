@@ -270,6 +270,7 @@ inline Intersection Triangle::getIntersection(Ray ray)
     inter.happened = true;
     inter.obj = this;
     inter.coords = ray.origin + ray.direction * t_tmp;
+    inter.emit = m->getEmission();
     inter.normal = normal;
     inter.m = m;
     inter.distance = t_tmp;
