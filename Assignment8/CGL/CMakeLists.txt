@@ -1,7 +1,7 @@
 # Original file Copyright CMU462 Fall 2015:
 # Kayvon Fatahalian, Keenan Crane,
 # Sky Gao, Bryce Summers, Michael Choquette.
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 2.8)
 project(CGL)
 
 #-------------------------------------------------------------------------------
@@ -163,8 +163,7 @@ link_directories(/usr/lib/x86_64-linux-gnu/mesa/)
 
 # Required packages
 find_package(OpenGL REQUIRED)
-#find_package(Freetype REQUIRED)
-
+find_package(Freetype REQUIRED)
 
 include_directories( ${OPENGL_INCLUDE_DIRS})
 

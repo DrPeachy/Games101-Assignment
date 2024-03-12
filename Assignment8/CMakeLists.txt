@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 2.8)
 project(RopeSim)
-set(CMAKE_CXX_STANDARD 17)
+
 #-------------------------------------------------------------------------------
 # Build options
 #-------------------------------------------------------------------------------
@@ -143,9 +143,7 @@ endif(WIN32)
 # Required packages
 find_package(OpenGL REQUIRED)
 find_package(Threads REQUIRED)
-#find_package(Freetype REQUIRED)
-
-
+find_package(Freetype REQUIRED)
 
 # CGL
 if(BUILD_LIBCGL)
