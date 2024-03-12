@@ -66,17 +66,26 @@ namespace CGL {
         for (auto &s : springs)
         {
             // TODO (Part 3): Simulate one timestep of the rope using explicit Verlet （solving constraints)
+            Vector2D a_to_b = s->m2->position - s->m1->position;
+            Vector2D force = s->k * (a_to_b.norm() - s->rest_length) * a_to_b.unit();
+            s->m1->forces += force;
+            s->m2->forces -= force;
         }
-
+        float damping_factor = 0.00001;
         for (auto &m : masses)
         {
             if (!m->pinned)
             {
-                Vector2D temp_position = m->position;
                 // TODO (Part 3.1): Set the new position of the rope mass
-                
+                Vector2D temp_position = m->position;
+                m->forces += gravity;
+                Vector2D acceleration = m->forces / m->mass;
                 // TODO (Part 4): Add global Verlet damping
+                m->position += (m->position - m->last_position) * (1 - damping_factor) + acceleration * delta_t * delta_t;
+                m->last_position = temp_position;
+
             }
+            m->forces = Vector2D(0, 0);
         }
     }
 }
