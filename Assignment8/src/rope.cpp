@@ -36,7 +36,7 @@ namespace CGL {
             s->m1->forces += force;
             s->m2->forces -= force;
         }
-
+        float damping_factor = 0.0001;
         for (auto &m : masses)
         {
             if (!m->pinned)
@@ -51,9 +51,9 @@ namespace CGL {
 
                 // semi-implicit Euler
                 m->position += delta_t * m->velocity;
-                
-                // TODO (Part 2): Add global damping
 
+                // TODO (Part 2): Add global damping
+                m->velocity *= (1 - damping_factor);
             }
 
             // Reset all forces on each mass
